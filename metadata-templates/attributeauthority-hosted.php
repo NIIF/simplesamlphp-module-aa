@@ -3,7 +3,7 @@
  *
  */
 
-$metadata['https://aai.sztaki.hu/vo'] = array(
+$metadata['https://example.com/vo'] = array(
         /*
          * The hostname of the server (VHOST) that will use this SAML entity.
          *
@@ -15,8 +15,8 @@ $metadata['https://aai.sztaki.hu/vo'] = array(
         'privatekey' => 'server.pem',
         'certificate' => 'server.crt',
 
-        'OrganizationName' => 'MTA SZTAKI',
-        'OrganizationDisplayName' => 'MTA SZTAKI',
-        'OrganizationURL' => 'http://www.sztaki.hu',
+        'OrganizationName' => 'EXAMPLE',
+        'OrganizationDisplayName' => 'EXAMPLE',
+        'OrganizationURL' => 'http://example.com',
 
 );
