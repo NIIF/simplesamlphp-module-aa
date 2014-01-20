@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * 
+ */
+abstract class  sspmod_aa_AttributeResolver
+{
+	protected function __construct(&$config)
+	{
+		assert('is_array($config)');
+	}
+	
+	abstract public function getAttributes($eppn,$spid);	
+}

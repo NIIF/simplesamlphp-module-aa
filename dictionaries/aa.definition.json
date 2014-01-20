@@ -1,0 +1,17 @@
+{
+	"text": {
+		"en": "AttributeAuthority metadata"
+	},
+	"mapping": {
+		"en": "ServiceProvider entityId, entitlement filter pattern mapping"
+	},
+	"aa_header": {
+		"en": "AttributeAuthority module configuration"
+	},
+	"select": {
+		"en": "SQL select"
+	},
+	"fid": {
+		"en": "Federated persistent identifier"
+	}
+}
