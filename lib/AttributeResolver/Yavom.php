@@ -13,7 +13,7 @@ class sspmod_aa_AttributeResolver_Yavom extends sspmod_aa_AttributeResolver
 		sfContext::createInstance($configuration);
 	}
 
-	public function getAttributes($eppn,$spid)
+	public function getAttributes($spid, $eppn, $attributes = array())
 	{
 		/*  AttributeResolver class from YAVOM, not SSP */
 		/*  Getting the related attributes for user and the related SP from YAVOM database */

@@ -1,13 +1,13 @@
 <?php
 class sspmod_aa_AttributeResolver_PDO extends sspmod_aa_AttributeResolver
 {
-        public function __construct($config){
-            parent::__construct($config);
-        }
+    public function __construct($config){
+        parent::__construct($config);
+    }
 
-	public function getAttributes($eppn,$spid)
+	public function getAttributes($spid,$eppn,$attributes = array())
 	{
-                $config = $this->config;
+        $config = $this->config;
 		$epe = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.7';
 		$retarray = array();
                 /* TODO check config, is there {{ fid }} in 'select' */

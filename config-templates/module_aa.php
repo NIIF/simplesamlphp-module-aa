@@ -37,4 +37,18 @@ $config = array(
       'spid_urnregexp_map' => array(
               'https://noc2b.vh.hbone.hu/shibboleth' => array('cvsweb'),
       ),
+
+      /**
+       *
+       * ExamplStatic
+       *
+       */
+      /*
+      'resolver' => 'ExampleStatic',
+      'attribs' => array(
+        'urn:oid:1.3.6.1.4.1.5923.1.1.1.7' => 'urn:oid:test-from-examplestatic', // eduPersonEntitlement
+        'urn:oid:0.9.2342.19200300.100.1.3' => 'testuser+from-examplestatic@example.com' //mail
+      ),
+      */
+   
 );

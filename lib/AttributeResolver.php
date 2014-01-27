@@ -12,5 +12,5 @@ abstract class  sspmod_aa_AttributeResolver
         $this->config = $config;
 	}
 	
-	abstract public function getAttributes($eppn,$spid);	
+	abstract public function getAttributes($spid, $subject, $attributes);	
 }
