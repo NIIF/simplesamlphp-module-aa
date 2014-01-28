@@ -13,5 +13,11 @@
 	},
 	"fid": {
 		"en": "Federated persistent identifier"
+	},
+	"resolver": {
+		"en": "Attribute resolver class"
+	},
+	"examplestatic_attributes": {
+		"en": "Attribute name, value pairs"
 	}
 }

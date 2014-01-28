@@ -18,14 +18,20 @@ $aaconfig = SimpleSAML_Configuration::getConfig('module_aa.php');
 $resolver = $aaconfig->getValue('resolver', '');
 $data = array();
 if ($resolver == "PDO"){
-  $data['fid'] = $aaconfig->getValue('fid_attribute_name', '');
-  $data['select'] = $aaconfig->getValue('select', '');
-  $data['mapping'] = $aaconfig->getArray('spid_urnregexp_map', '');
+	$data['fid'] = $aaconfig->getValue('fid_attribute_name', '');
+	$data['select'] = $aaconfig->getValue('select', '');
+	$data['mapping'] = $aaconfig->getArray('spid_urnregexp_map', '');
+	$template = 'aa:settings-pdo-tpl.php';
 }
 
-$t = new SimpleSAML_XHTML_Template($config, 'aa:settings-tpl.php', 'aa:aa');
+if ($resolver == 'ExampleStatic'){
+	$data['attributes'] = $aaconfig->getArray('attributes');
+	$data['resolver'] = 'ExampleStatic';
+	$template = 'aa:settings-examplestatic-tpl.php';
+}
+
+$t = new SimpleSAML_XHTML_Template($config, $template, 'aa:aa');
 $t->data['data'] = $data;
 $t->show();
-
 
 ?>

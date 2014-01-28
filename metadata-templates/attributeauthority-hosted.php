@@ -1,3 +1,4 @@
+<?php
 /**
  * SAML 2.0 AA configuration for simpleSAMLphp.
  *
