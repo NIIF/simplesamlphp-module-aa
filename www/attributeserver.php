@@ -60,18 +60,20 @@ $attributeNameFormat = 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri';
 SimpleSAML_Logger::debug('[aa] Got relay state: '.$query->getRelayState());
 
 /* Determine which attributes we will return. */
-$returnAttributes = array_keys($query->getAttributes());
+$returnAttributes = $query->getAttributes();
 if (count($returnAttributes) === 0) {
-	SimpleSAML_Logger::debug('No attributes requested - return all attributes: '.var_export($attributes,true));
+	SimpleSAML_Logger::debug('[aa] No attributes requested - return all attributes: '.var_export($attributes,true));
 	$returnAttributes = $attributes;
 
 } elseif ($query->getAttributeNameFormat() !== $attributeNameFormat) {
-	SimpleSAML_Logger::debug('Requested attributes with wrong NameFormat - no attributes returned.');
+	SimpleSAML_Logger::debug('[aa] Requested attributes with wrong NameFormat - no attributes returned. Expected: '.$attributeNameFormat.' Got: '. $query->getAttributeNameFormat());
 	$returnAttributes = array();
 } else {
 	foreach ($returnAttributes as $name => $values) {
+		SimpleSAML_Logger::debug('[aa] Check this attribute: '.$name);
 		if (!array_key_exists($name, $attributes)) {
 			/* We don't have this attribute. */
+			SimpleSAML_Logger::debug('[aa] We dont have this attribute, unset: '.$name);
 			unset($returnAttributes[$name]);
 			continue;
 		}
