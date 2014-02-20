@@ -9,6 +9,7 @@ $binding = SAML2_Binding::getCurrentBinding();
 SimpleSAML_Logger::debug('[aa] binding: '.var_export($binding,true));
 
 $query = $binding->receive();
+
 SimpleSAML_Logger::debug('[aa] query: '.var_export($query,true));
 
 if (!($query instanceof SAML2_AttributeQuery)) {
@@ -25,6 +26,14 @@ if ($spEntityId === NULL) {
 	throw new SimpleSAML_Error_BadRequest('Missing <saml:Issuer> in <samlp:AttributeQuery>.');
 }
 $spMetadata = $metadata->getMetaDataConfig($spEntityId, 'saml20-sp-remote');
+
+// validate signed query
+
+if (! sspmod_saml_Message::checkSign($spMetadata,$query)){
+	throw new SimpleSAML_Error_Exception("[aa] The sign of the AttributeQuery is wrong!");
+
+}
+
 
 /* The endpoint we should deliver the message to. */
 /* legacy support get out very soon! */
