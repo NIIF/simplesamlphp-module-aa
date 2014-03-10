@@ -24,6 +24,12 @@ $config = array(
       'dsn' => 'mysql:host=localhost;dbname=aadatabase',
       'username' => 'user',
       'password' => 'pass',
+      
+      /*
+	HEXAA REST API URL, only needed if resolver='Hexaa'.
+	Note: Do not write / at the end!
+      */
+      //'hexaa_api_url' => 'http://localhost/hexaa/api',
 
       'fid_attribute_name'=>'eduPersonPrincipalName',
 
