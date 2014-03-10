@@ -34,14 +34,6 @@ if (! sspmod_saml_Message::checkSign($spMetadata,$query)){
 
 }
 
-
-/* The endpoint we should deliver the message to. */
-/* legacy support get out very soon! */
-$endpoint=NULL;
-if ($binding instanceof SAML2_HTTPRedirect ){
-  $endpoint = $spMetadata->getString('testAttributeEndpoint');
-}
-
 /* The attributes we will return. */
 $nameId=$query->getNameId();
 $expected_nameFormat = $aa_config->getValue('expected_nameFormat',SAML2_Const::NAMEID_PERSISTENT);
@@ -56,11 +48,6 @@ $resolverclass = 'sspmod_aa_AttributeResolver_'.$aa_config->getValue('resolver')
 $ar = new $resolverclass($aa_config);
 $attributes = array();
 $attributes = $ar->getAttributes($nameId['Value'],$spEntityId);
-
-/* for testing only */
-if ($aa_config->hasValue('testvalue')){
-  $attributes=array_merge($attributes,$aa_config->getValue('testvalue'));
-}
 
 /* The name format of the attributes. */
 // gyufi $attributeNameFormat = SAML2_Const::NAMEFORMAT_UNSPECIFIED;
