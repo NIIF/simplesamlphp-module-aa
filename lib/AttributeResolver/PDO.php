@@ -5,7 +5,7 @@ class sspmod_aa_AttributeResolver_PDO extends sspmod_aa_AttributeResolver
         parent::__construct($config);
     }
 
-	public function getAttributes($spid,$eppn,$attributes = array())
+	public function getAttributes($eppn,$spid,$attributes = array())
 	{
         $config = $this->config;
 		$epe = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.7';
