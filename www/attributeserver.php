@@ -34,7 +34,9 @@ $spMetadata = $metadata->getMetaDataConfig($spEntityId, 'saml20-sp-remote');
 /* Validate the query authenticity */
 $client_is_authenticated = FALSE;
 
-SimpleSAML_Logger::debug('[aa] SSL_CLIENT_VERIFY: '.var_export($_SERVER['SSL_CLIENT_VERIFY'],1));
+if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER)){
+    SimpleSAML_Logger::debug('[aa] SSL_CLIENT_VERIFY: '.var_export($_SERVER['SSL_CLIENT_VERIFY'],1));
+}
 if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER) && $_SERVER['SSL_CLIENT_VERIFY'] != "NONE"){
 	/* compare certificate fingerprints */
 	$clientCertData = trim(preg_replace('/-----.* CERTIFICATE-----/','',$_SERVER['SSL_CLIENT_CERT']));
