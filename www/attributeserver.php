@@ -68,7 +68,10 @@ else {
 }
 
 if (! $client_is_authenticated){
-		throw new SimpleSAML_Error_Exception("[aa] The Attribute Aggregator is not authenticated!");
+             header('HTTP/1.1 401 Unauthorized');
+             header('WWW-Authenticate: None',false);
+             echo 'Not authenticated. No AttributeQuery signature nor SSL client certificate not available.';
+             exit;
 }
 else {
 	SimpleSAML_Logger::debug('[aa] AttributeQuery has authenticity.');
