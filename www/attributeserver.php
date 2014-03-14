@@ -68,6 +68,7 @@ else {
 }
 
 if (! $client_is_authenticated){
+             SimpleSAML_Logger::info('[aa] AttributeQuery has not authenticity. Drop.');
              header('HTTP/1.1 401 Unauthorized');
              header('WWW-Authenticate: None',false);
              echo 'Not authenticated. No AttributeQuery signature nor SSL client certificate not available.';
