@@ -162,4 +162,5 @@ sspmod_saml_Message::addSign($aaMetadata, $spMetadata, $response);
 
 /* Send */
 SimpleSAML_Logger::debug('[aa] Sending: '.var_export($response,true));
+SimpleSAML_Logger::info('[aa] Sending assertion.');
 $binding->send($response);
