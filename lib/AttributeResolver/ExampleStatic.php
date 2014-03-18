@@ -7,7 +7,7 @@ class sspmod_aa_AttributeResolver_ExampleStatic extends sspmod_aa_AttributeResol
         parent::__construct($config);
 	}
 
-	public function getAttributes($spid, $subject, $attributes = array())
+	public function getAttributes($subject, $spid, $attributes = array())
 	{
 		$config = $this->config;
 		$static_attributes = $config->getArray('attributes');
