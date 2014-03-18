@@ -28,7 +28,7 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 		$retarray = array();
 		
 		$apiKey = generateApiKey();	
-		$query($aa_config->getValue('hexaa_api_url')."/attributes/".urlencode($eppn)."/".urlencode($spid)."?apikey=".$apikey);
+		$query($aa_config->getValue('hexaa_api_url')."/attributes/".urlencode($eppn)."?soid=".urlencode($spid)."&apikey=".$apikey);
 
 		
 		$ch = curl_init($query);
