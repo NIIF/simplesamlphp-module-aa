@@ -20,7 +20,7 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 		$time = new \DateTime();
 		$stamp = $time->format('Y-m-d H:i');
 		$apiKey = hash('sha256',"simplesamlphp"."ssp".$stamp);	
-		$query = $config->getValue('hexaa_api_url')."/attributes/".urlencode($eppn)."?soid=".urlencode($spid)."&apikey=".$apiKey;
+		$query($aa_config->getValue('hexaa_api_url')."/attributes?fedid=".urlencode($eppn)."&soid=".urlencode($spid)."&apikey=".$apikey);
 		$result = file_get_contents($query);
 		$data = json_decode($result, true);
 		return $data;
