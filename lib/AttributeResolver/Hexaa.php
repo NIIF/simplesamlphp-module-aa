@@ -19,8 +19,8 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 		$time = new \DateTime();
 		$stamp = $time->format('Y-m-d H:i');
 		$apiKey = hash('sha256',"simplesamlphp"."ssp".$stamp);	
-		SimpleSAML_Logger::debug('[aa] Hexaa api query: '.$config->getValue('hexaa_api_url')."/attributes.json?fedid=".urlencode($eppn)."&soid=".urlencode($spid)."apikey=HIDDEN with timestamp: ".$stamp);
 		$query = $config->getValue('hexaa_api_url')."/attributes.json?fedid=".urlencode($eppn)."&soid=".urlencode($spid)."&apikey=".$apiKey;
+		SimpleSAML_Logger::debug('[aa] HEXAA API query: '.$query." with timestamp: ".$stamp);
 		$result = file_get_contents($query);
 		$data = json_decode($result, true);
 		return $data;
