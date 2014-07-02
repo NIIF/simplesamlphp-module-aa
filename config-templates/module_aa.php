@@ -27,7 +27,12 @@ $config = array(
 	HEXAA REST API URL, only needed if resolver='Hexaa'.
 	Note: Do not write / at the end!
       */
-      //'hexaa_api_url' => 'http://localhost/hexaa/api',
+        //'hexaa_api_url' => 'https://localhost/hexaa/api',
+      /*
+        HEXAA REST API access secret, only needed if resolver='Hexaa'
+	Same value as in HEXAA app/config/parameters.yml/hexaa_master_secret
+      */
+	//'hexaa_master_secret' => 'InsertSomeSecretHere',
 
       'fid_attribute_name'=>'eduPersonPrincipalName',
        */
