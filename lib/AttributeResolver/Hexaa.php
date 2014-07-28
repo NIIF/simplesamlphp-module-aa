@@ -32,7 +32,7 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 
 
 		// Setup cURL
-		$ch = curl_init('https://hexaa.eduid.hu/api/attributes.json');
+		$ch = curl_init($config->getValue('hexaa_api_url').'/attributes.json');
 		curl_setopt_array($ch, array(
 		        CURLOPT_POST => TRUE,
 		        CURLOPT_RETURNTRANSFER => TRUE,
@@ -52,6 +52,7 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 		} else {
 		        $data = json_decode($response, true);
 		SimpleSAML_Logger::info('[aa] HEXAA API query successful');
+		SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($datai, TRUE));
 		}
 		return $data;
 	}
