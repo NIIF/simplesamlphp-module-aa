@@ -52,7 +52,7 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 		} else {
 		        $data = json_decode($response, true);
 		SimpleSAML_Logger::info('[aa] HEXAA API query successful');
-		SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($datai, TRUE));
+		SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($data, TRUE));
 		}
 		return $data;
 	}
