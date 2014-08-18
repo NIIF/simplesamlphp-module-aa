@@ -17,8 +17,8 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 		$retarray = array();
 		
 		// Generate API key
-	        date_default_timezone_set('UTC');	
 		$time = new \DateTime();
+	        date_timezone_set($time, new \DateTimeZone('UTC'));
 		$stamp = $time->format('Y-m-d H:i');
 		$apiKey = hash('sha256', $config->getValue('hexaa_master_secret').$stamp);	
 	
@@ -51,7 +51,7 @@ class sspmod_aa_AttributeResolver_Hexaa extends sspmod_aa_AttributeResolver
 		$data = array();
 		} else {
 		        $data = json_decode($response, true);
-		SimpleSAML_Logger::info('[aa] HEXAA API query successful');
+		SimpleSAML_Logger::info('[aa] got reply from HEXAA API');
 		SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($data, TRUE));
 		}
 		return $data;
