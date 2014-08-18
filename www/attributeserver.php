@@ -9,7 +9,7 @@ $binding = SAML2_Binding::getCurrentBinding();
 
 /* Supported binding is SOAP */
 if (! ($binding instanceof SAML2_SOAP)) {
-	throw new SimpleSAML_Error_BadRequest('[aa] Unsupported binding. It must be SAML2_SOAP.');	
+    throw new SimpleSAML_Error_BadRequest('[aa] Unsupported binding. It must be SAML2_SOAP.');    
 }
 SimpleSAML_Logger::debug('[aa] binding: '.var_export($binding,true));
 
@@ -17,7 +17,7 @@ $query = $binding->receive();
 SimpleSAML_Logger::debug('[aa] query: '.var_export($query,true));
 
 if (!($query instanceof SAML2_AttributeQuery)) {
-	throw new SimpleSAML_Error_BadRequest('Invalid message received to AttributeQuery endpoint.');
+    throw new SimpleSAML_Error_BadRequest('Invalid message received to AttributeQuery endpoint.');
 }
 
 /* Getting the related entities metadata objects */
@@ -26,7 +26,7 @@ $aaMetadata = $metadata->getMetadataConfig($aaEntityId, 'attributeauthority-host
 
 $spEntityId = $query->getIssuer();
 if ($spEntityId === NULL) {
-	throw new SimpleSAML_Error_BadRequest('Missing <saml:Issuer> in <samlp:AttributeQuery>.');
+    throw new SimpleSAML_Error_BadRequest('Missing <saml:Issuer> in <samlp:AttributeQuery>.');
 }
 $spMetadata = $metadata->getMetaDataConfig($spEntityId, 'saml20-sp-remote');
 
@@ -38,13 +38,13 @@ if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER)){
     SimpleSAML_Logger::debug('[aa] Request was made using the following certificate: '.var_export($_SERVER['SSL_CLIENT_VERIFY'],1));
 }
 if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER) && $_SERVER['SSL_CLIENT_VERIFY'] && $_SERVER['SSL_CLIENT_VERIFY'] != "NONE"){
-	/* compare certificate fingerprints */
-	$clientCertData = trim(preg_replace('/--.* CERTIFICATE-+-/','',$_SERVER['SSL_CLIENT_CERT']));
+    /* compare certificate fingerprints */
+    $clientCertData = trim(preg_replace('/--.* CERTIFICATE-+-/','',$_SERVER['SSL_CLIENT_CERT']));
     $clientCertFingerprint = strtolower(sha1(base64_decode($clientCertData)));
     if(!$clientCertFingerprint)
         throw new SimpleSAML_Error_Exception("[aa] Can not calculate certificate fingerprint from the request.");
 
-	$spCertArray = SimpleSAML_Utilities::loadPublicKey($spMetadata);
+    $spCertArray = SimpleSAML_Utilities::loadPublicKey($spMetadata);
     if (!$spCertArray) 
         throw new SimpleSAML_Error_Exception("[aa] Can not find the public key of the requestor in the metadata!");
 
@@ -56,24 +56,24 @@ if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER) && $_SERVER['SSL_CLIENT_VERI
         }
     }
     /* Reject the request if the TLS certificate used for the request does not match metadata */
-	if (!$client_is_authenticated){
-		throw new SimpleSAML_Error_Exception("[aa] SSL certificate check failed.");
-	}
+    if (!$client_is_authenticated){
+        throw new SimpleSAML_Error_Exception("[aa] SSL certificate check failed.");
+    }
 }
 else {
     /* The request may be signed, so this is not fatal */
-	SimpleSAML_Logger::debug('[aa] SSL client certificate does not exist.');
+    SimpleSAML_Logger::debug('[aa] SSL client certificate does not exist.');
 }
 
 /* Authenticate the requestor by verifying the XML signature on the query */
 $certs_of_query = $query->getCertificates();
 if (count($certs_of_query) > 0) {
-	if (sspmod_saml_Message::checkSign($spMetadata,$query)){
-	    $client_is_authenticated = TRUE;
+    if (sspmod_saml_Message::checkSign($spMetadata,$query)){
+        $client_is_authenticated = TRUE;
         SimpleSAML_Logger::debug('[aa] AttributeQuery signature is checked and valid.');
-	} else {
+    } else {
         /* An invalid or unverifiable signature is fatal */
-		throw new SimpleSAML_Error_Exception("[aa] The signature of the AttributeQuery is wrong!");
+        throw new SimpleSAML_Error_Exception("[aa] The signature of the AttributeQuery is wrong!");
     }
 }
 else {
@@ -89,7 +89,7 @@ if (! $client_is_authenticated){
              exit;
 }
 else {
-	SimpleSAML_Logger::debug('[aa] Attribute query was authenticated.');
+    SimpleSAML_Logger::debug('[aa] Attribute query was authenticated.');
 }
 
 /* *** Return some attributes. *** */
@@ -102,7 +102,7 @@ SimpleSAML_Logger::info('[aa] Received attribute query for ' . $nameId['Value'] 
 
 $resolverclass = 'sspmod_aa_AttributeResolver_'.$aa_config->getValue('resolver');
  if (! class_exists($resolverclass)){
-	throw new SimpleSAML_Error_Exception('[aa] There is no resolver named '.$aa_config->getValue('resolver').' in the config/module_aa.php');
+    throw new SimpleSAML_Error_Exception('[aa] There is no resolver named '.$aa_config->getValue('resolver').' in the config/module_aa.php');
 }
 
 /* Get the attributes from the Resolver */
@@ -118,31 +118,31 @@ SimpleSAML_Logger::debug('[aa] Got relay state: '.$query->getRelayState());
 /* Determine which attributes we will return. */
 $returnAttributes = $query->getAttributes();
 if (count($returnAttributes) === 0) {
-	SimpleSAML_Logger::debug('[aa] No attributes requested - return all attributes: '.var_export($attributes,true));
-	$returnAttributes = $attributes;
+    SimpleSAML_Logger::debug('[aa] No attributes requested - return all attributes: '.var_export($attributes,true));
+    $returnAttributes = $attributes;
 
 } elseif ($query->getAttributeNameFormat() !== $attributeNameFormat) {
-	SimpleSAML_Logger::debug('[aa] Requested attributes with wrong NameFormat - no attributes returned. Expected: '.$attributeNameFormat.' Got: '. $query->getAttributeNameFormat());
-	$returnAttributes = array();
+    SimpleSAML_Logger::debug('[aa] Requested attributes with wrong NameFormat - no attributes returned. Expected: '.$attributeNameFormat.' Got: '. $query->getAttributeNameFormat());
+    $returnAttributes = array();
 } else {
-	foreach ($returnAttributes as $name => $values) {
-		SimpleSAML_Logger::debug('[aa] Check this attribute: '.$name);
-		if (!array_key_exists($name, $attributes)) {
-			/* We don't have this attribute. */
-			SimpleSAML_Logger::debug('[aa] We dont have this attribute, unset: '.$name);
-			unset($returnAttributes[$name]);
-			continue;
-		}
+    foreach ($returnAttributes as $name => $values) {
+        SimpleSAML_Logger::debug('[aa] Check this attribute: '.$name);
+        if (!array_key_exists($name, $attributes)) {
+            /* We don't have this attribute. */
+            SimpleSAML_Logger::debug('[aa] We dont have this attribute, unset: '.$name);
+            unset($returnAttributes[$name]);
+            continue;
+        }
 
-		if (count($values) === 0) {
-			/* Return all values. */
-			$returnAttributes[$name] = $attributes[$name];
-			continue;
-		}
+        if (count($values) === 0) {
+            /* Return all values. */
+            $returnAttributes[$name] = $attributes[$name];
+            continue;
+        }
 
-		/* Filter which attribute values we should return. */
-		$returnAttributes[$name] = array_intersect($values, $attributes[$name]);
-	}
+        /* Filter which attribute values we should return. */
+        $returnAttributes[$name] = array_intersect($values, $attributes[$name]);
+    }
 }
 
 
