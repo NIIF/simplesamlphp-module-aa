@@ -20,7 +20,6 @@ if (!($query instanceof SAML2_AttributeQuery)) {
 	throw new SimpleSAML_Error_BadRequest('Invalid message received to AttributeQuery endpoint.');
 }
 
-
 /* Getting the related entities metadata objects */
 $aaEntityId = $metadata->getMetaDataCurrentEntityID('attributeauthority-hosted');
 $aaMetadata = $metadata->getMetadataConfig($aaEntityId, 'attributeauthority-hosted');
@@ -31,59 +30,76 @@ if ($spEntityId === NULL) {
 }
 $spMetadata = $metadata->getMetaDataConfig($spEntityId, 'saml20-sp-remote');
 
-/* Validate the query authenticity */
+/* *** Authenticate the requestor *** */
 $client_is_authenticated = FALSE;
 
+/* Authenticate the requestor by verifying the TLS certificate used for the HTTP query */
 if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER)){
-    SimpleSAML_Logger::debug('[aa] SSL_CLIENT_VERIFY: '.var_export($_SERVER['SSL_CLIENT_VERIFY'],1));
+    SimpleSAML_Logger::debug('[aa] Request was made using the following certificate: '.var_export($_SERVER['SSL_CLIENT_VERIFY'],1));
 }
-if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER) && $_SERVER['SSL_CLIENT_VERIFY'] != "NONE"){
+if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER) && $_SERVER['SSL_CLIENT_VERIFY'] && $_SERVER['SSL_CLIENT_VERIFY'] != "NONE"){
 	/* compare certificate fingerprints */
-	$clientCertData = trim(preg_replace('/-----.* CERTIFICATE-----/','',$_SERVER['SSL_CLIENT_CERT']));
+	$clientCertData = trim(preg_replace('/--.* CERTIFICATE-+-/','',$_SERVER['SSL_CLIENT_CERT']));
     $clientCertFingerprint = strtolower(sha1(base64_decode($clientCertData)));
+    if(!$clientCertFingerprint)
+        throw new SimpleSAML_Error_Exception("[aa] Can not calculate certificate fingerprint from the request.");
 
 	$spCertArray = SimpleSAML_Utilities::loadPublicKey($spMetadata);
-	if ($clientCertFingerprint != $spCertArray['certFingerprint'][0]){
-		throw new SimpleSAML_Error_Exception("[aa] The SSL certificate of the Attribute Aggregator is exists but not match with the metadata! clientCertFingerprint: ".$clientCertFingerprint." metadataCertFingerPrint: ".$spCertArray['certFingerprint'][0]);
+    if (!$spCertArray) 
+        throw new SimpleSAML_Error_Exception("[aa] Can not find the public key of the requestor in the metadata!");
+
+    foreach ($spCertArray['certFingerprint'] as $fingerprint) {
+        if ($fingerprint && $clientCertFingerprint == $fingerprint) {
+            $client_is_authenticated = TRUE;
+            SimpleSAML_Logger::debug('[aa] SSL certificate is checked and valid.');
+            break;
+        }
+    }
+    /* Reject the request if the TLS certificate used for the request does not match metadata */
+	if (!$client_is_authenticated){
+		throw new SimpleSAML_Error_Exception("[aa] SSL certificate check failed.");
 	}
-	$client_is_authenticated = TRUE;
-        SimpleSAML_Logger::debug('[aa] SSL certificate is checked and valid.');	
 }
 else {
-	SimpleSAML_Logger::debug('[aa] SSL client certificate not exists.');
+    /* The request may be signed, so this is not fatal */
+	SimpleSAML_Logger::debug('[aa] SSL client certificate does not exist.');
 }
 
-//Has query signature?
+/* Authenticate the requestor by verifying the XML signature on the query */
 $certs_of_query = $query->getCertificates();
-SimpleSAML_Logger::debug('[aa] Count of querys certs: '.count($certs_of_query));
 if (count($certs_of_query) > 0) {
-	if (! sspmod_saml_Message::checkSign($spMetadata,$query)){
-		throw new SimpleSAML_Error_Exception("[aa] The sign of the AttributeQuery is exists and wrong!");
-	}
-	$client_is_authenticated = TRUE;
+	if (sspmod_saml_Message::checkSign($spMetadata,$query)){
+	    $client_is_authenticated = TRUE;
         SimpleSAML_Logger::debug('[aa] AttributeQuery signature is checked and valid.');
+	} else {
+        /* An invalid or unverifiable signature is fatal */
+		throw new SimpleSAML_Error_Exception("[aa] The signature of the AttributeQuery is wrong!");
+    }
 }
 else {
+    /* The request may be protected by HTTP TLS (X.509) authentication, so this is not fatal */
     SimpleSAML_Logger::debug('[aa] AttributeQuery has no signature.');
 }
 
 if (! $client_is_authenticated){
-             SimpleSAML_Logger::info('[aa] AttributeQuery has not authenticity. Drop.');
+             SimpleSAML_Logger::info('[aa] Attribute query was not authenticated. Drop.');
              header('HTTP/1.1 401 Unauthorized');
              header('WWW-Authenticate: None',false);
-             echo 'Not authenticated. No AttributeQuery signature nor SSL client certificate not available.';
+             echo 'Not authenticated. Neither query signature nor SSL client certificate was available.';
              exit;
 }
 else {
-	SimpleSAML_Logger::debug('[aa] AttributeQuery has authenticity.');
+	SimpleSAML_Logger::debug('[aa] Attribute query was authenticated.');
 }
 
-/* The attributes we will return. */
+/* *** Return some attributes. *** */
 $nameId=$query->getNameId();
-$expected_nameFormat = $aa_config->getValue('expected_nameFormat',SAML2_Const::NAMEID_PERSISTENT);
-if ($aa_config->hasValue('expected_nameFormat') && ($nameId['nameFormat'] != $expected_nameFormat)){
-	throw new SimpleSAML_Error_BadRequest('[aa] Bad news! NameIdFormat is not the expected (persistent is recommended)! Given: '.$nameId['nameFormat'].' expected: '. $expected_nameFormat);
-}
+
+if (!$nameId)
+    throw new SimpleSAML_Error_BadRequest('[aa] Error getting NameID from AttributeQuery.');
+
+SimpleSAML_Logger::info('[aa] Received attribute query for ' . $nameId['Value'] . ' (nameFormat: ' . $nameId['nameFormat']);
+
 $resolverclass = 'sspmod_aa_AttributeResolver_'.$aa_config->getValue('resolver');
  if (! class_exists($resolverclass)){
 	throw new SimpleSAML_Error_Exception('[aa] There is no resolver named '.$aa_config->getValue('resolver').' in the config/module_aa.php');
@@ -92,11 +108,10 @@ $resolverclass = 'sspmod_aa_AttributeResolver_'.$aa_config->getValue('resolver')
 /* Get the attributes from the Resolver */
 $ar = new $resolverclass($aa_config);
 $attributes = array();
-$attributes = $ar->getAttributes($nameId['Value'],$spEntityId);
+$attributes = $ar->getAttributes($nameId['Value'],$spEntityId,$query->getAttributes());
 
 /* The name format of the attributes. */
-//$attributeNameFormat = SAML2_Const::NAMEFORMAT_URI;
-$attributeNameFormat = 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri';
+$attributeNameFormat = SAML2_Const::NAMEFORMAT_URI; // TODO -> config
 
 SimpleSAML_Logger::debug('[aa] Got relay state: '.$query->getRelayState());
 
@@ -120,7 +135,7 @@ if (count($returnAttributes) === 0) {
 		}
 
 		if (count($values) === 0) {
-			/* Return all attributes. */
+			/* Return all values. */
 			$returnAttributes[$name] = $attributes[$name];
 			continue;
 		}
