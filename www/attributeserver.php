@@ -110,9 +110,27 @@ $resolverclass = 'sspmod_aa_AttributeResolver_'.$aa_config->getValue('resolver')
 }
 
 /* Get the attributes from the Resolver */
+ // TODO call authsource not resolver
 $ar = new $resolverclass($aa_config);
 $attributes = array();
 $attributes = $ar->getAttributes($nameId['Value'],$spEntityId,$query->getAttributes());
+
+/* Lets filter */
+$spMetadataArray = $spMetadata->toArray();
+$aaMetadataArray = $aaMetadata->toArray();
+$pc = new SimpleSAML_Auth_ProcessingChain($aaMetadataArray, $spMetadataArray, 'aa');
+$authProcState = array(
+    'Attributes' => $attributes,
+    'Destination' => $spMetadataArray,
+    'Source' => $aaMetadataArray,
+);
+SimpleSAML_Logger::debug('[aa] Auth Filter Process filters: '.var_export($pc,1));
+
+$pc->processStatePassive($authProcState); // backend processing
+
+SimpleSAML_Logger::debug('[aa] Auth Filter Process stop, state: '.var_export($authProcState,1));
+
+$attributes = $authProcState['Attributes'];
 
 /* The name format of the attributes. */
 //$attributeNameFormat = SAML2_Const::NAMEFORMAT_URI; 
@@ -120,8 +138,6 @@ $attributeNameFormat = 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri';
 if ($aa_config->hasValue('attributeNameFormat')) {
     $attributeNameFormat = $aa_config->getValue('attributeNameFormat');
 }
-
-SimpleSAML_Logger::debug('[aa] Got relay state: '.$query->getRelayState());
 
 /* Determine which attributes we will return. */
 $returnAttributes = $query->getAttributes();
