@@ -11,6 +11,11 @@ $config = array(
      *
      */
 		//'resolver' => 'Yavom',		
+                /*
+                  The responded assertion attributeNameFormat.
+                */
+                //'attributeNameFormat' => 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                
   
     /**
      * PDO class
@@ -35,7 +40,6 @@ $config = array(
 	//'hexaa_master_secret' => 'InsertSomeSecretHere',
 
       'fid_attribute_name'=>'eduPersonPrincipalName',
-       */
        /**
         * Must have {{ fid }} tag for given persistent ID
         * like eduPersonPrincipalName

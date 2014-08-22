@@ -16,9 +16,18 @@ class sspmod_aa_AttributeResolver_ExampleStatic extends sspmod_aa_AttributeResol
 		}
 
 		$retarray = array();		
-		foreach ($attributes as $attribute) {
-			if (array_key_exists($attribute, $static_attributes))
-				$retarray[$attribute] = $static_attributes[$attribute];
+		foreach ($attributes as $name => $values) {
+			if (array_key_exists($name, $static_attributes))
+                                if (! empty($values)) {
+                                    foreach($values as $value) {
+                                      if ($static_attributes[$name] == $value) {
+				    	$retarray[$name] = $static_attributes[$name];
+                                      }
+                                    }    
+                                }
+                                else {
+				    $retarray[$name] = $static_attributes[$name];
+                                }
 		}
 		return $retarray;
 	}

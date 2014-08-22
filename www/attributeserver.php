@@ -97,8 +97,12 @@ $nameId=$query->getNameId();
 
 if (!$nameId)
     throw new SimpleSAML_Error_BadRequest('[aa] Error getting NameID from AttributeQuery.');
+$nameFormat = "N/A";
+if (array_key_exists("Format",$nameId)) {
+    $nameFormat = $nameId["Format"];
+}
 
-SimpleSAML_Logger::info('[aa] Received attribute query for ' . $nameId['Value'] . ' (nameFormat: ' . $nameId['nameFormat']);
+SimpleSAML_Logger::info('[aa] Received attribute query for ' . $nameId['Value'] . ' (nameFormat: ' . $nameFormat . ')');
 
 $resolverclass = 'sspmod_aa_AttributeResolver_'.$aa_config->getValue('resolver');
  if (! class_exists($resolverclass)){
@@ -111,7 +115,11 @@ $attributes = array();
 $attributes = $ar->getAttributes($nameId['Value'],$spEntityId,$query->getAttributes());
 
 /* The name format of the attributes. */
-$attributeNameFormat = SAML2_Const::NAMEFORMAT_URI; // TODO -> config
+//$attributeNameFormat = SAML2_Const::NAMEFORMAT_URI; 
+$attributeNameFormat = 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri';
+if ($aa_config->hasValue('attributeNameFormat')) {
+    $attributeNameFormat = $aa_config->getValue('attributeNameFormat');
+}
 
 SimpleSAML_Logger::debug('[aa] Got relay state: '.$query->getRelayState());
 
