@@ -176,22 +176,39 @@ class sspmod_aa_AA_SAML2
 		    throw new SimpleSAML_Error_BadRequest('[aa] Error getting NameID from AttributeQuery.');
 		$nameFormat = "N/A";
 		if (array_key_exists("Format",$nameId)) {
-		    $nameFormat = $nameId["Format"];
+		    $nameIdFormat = $nameId["Format"];
 		}
 
-		SimpleSAML_Logger::info('[aa] Received attribute query for ' . $nameId['Value'] . ' (nameFormat: ' . $nameFormat . ')');
+		SimpleSAML_Logger::info('[aa] Received attribute query for ' . $nameId['Value'] . ' (nameIdFormat: ' . $nameIdFormat . ')');
 
+		/*
 		$resolverclass = 'sspmod_aa_AttributeResolver_'.$this->config->getValue('resolver');
 		 if (! class_exists($resolverclass)){
 		    throw new SimpleSAML_Error_Exception('[aa] There is no resolver named '.$this->config->getValue('resolver').' in the config/module_aa.php');
 		}
+		*/
 
-		/* Get the attributes from the Resolver */
+		/* Get the attributes from the AuthSource */
+		$spMetadataArray = $this->spMetadata->toArray();
+		$aaMetadataArray = $this->aaMetadata->toArray();
+		$attributes = array();
+		$state = array(
+		    'Attributes' => $attributes,
+		    'Destination' => $spMetadataArray,
+		    'Source' => $aaMetadataArray,
+		    'aa:nameId' => $nameId['Value'],
+		    'aa:nameIdFormat' => $nameIdFormat,
+		);
+		
+		$as = SimpleSAML_Auth_Source::getById($this->config->getValue("authsource"));
+		$as->authenticate($state);
+
+		$attributes = $state['Attributes'];
 
 		 // TODO call authsource not resolver
-		$ar = new $resolverclass($this->config);
-		$attributes = array();
-		$attributes = $ar->getAttributes($nameId['Value'],$this->spEntityId,$this->query->getAttributes());
+		//$ar = new $resolverclass($this->config);
+		//$attributes = array();
+		//$attributes = $ar->getAttributes($nameId['Value'],$this->spEntityId,$this->query->getAttributes());
 		return $attributes;
 	}
 
