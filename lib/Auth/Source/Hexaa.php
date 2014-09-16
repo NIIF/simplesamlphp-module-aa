@@ -1,15 +1,21 @@
 <?php
 class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
-	public function __construct($config)
+        private $hexaa_master_secret;
+        private $hexaa_api_url;
+
+	public function __construct($info, $config)
 	{
-                parent::__construct($config);
+                parent::__construct($info, $config);
+                $this->hexaa_master_secret = $config['hexaa_master_secret'];
+                $this->hexaa_api_url = $config['hexaa_api_url'];
 	}
 
 	public function authenticate(&$state) {
 		assert('is_array($state)');
 		$nameId = $state['aa:nameId'];
-		$spId = $state['Destination']['entityId'];
+		$spid = $state['Destination']['entityid'];
+		$this->config = SimpleSAML_Configuration::getInstance();
 		$state['Attributes'] = $this->getAttributes($nameId,$spid);
 	}
 
@@ -23,8 +29,7 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 		$time = new \DateTime();
 	        date_timezone_set($time, new \DateTimeZone('UTC'));
 		$stamp = $time->format('Y-m-d H:i');
-		$apiKey = hash('sha256', $config->getValue('hexaa_master_secret').$stamp);	
-	
+		$apiKey = hash('sha256', $this->hexaa_master_secret.$stamp);	
 		// Make the call
 		// The data to send to the API
 		$postData = array(
@@ -35,7 +40,7 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
 
 		// Setup cURL
-		$ch = curl_init($config->getValue('hexaa_api_url').'/attributes.json');
+		$ch = curl_init($this->hexaa_api_url.'/attributes.json');
 		curl_setopt_array($ch, array(
 		        CURLOPT_POST => TRUE,
 		        CURLOPT_RETURNTRANSFER => TRUE,
