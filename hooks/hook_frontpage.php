@@ -12,15 +12,5 @@ function aa_hook_frontpage(&$links) {
 		'href' => SimpleSAML_Module::getModuleURL('aa/metadata.php?output=xhtml'),
 		'text' => '{aa:aa:text}',
 		);
-	$links['config'][] = array(
-                'href' => SimpleSAML_Module::getModuleURL('aa/settings.php'),
-                'text' => array(
-                     'en' => 'AA module information page',
-                     'hu' => 'AA modul beállítások',
-                      ),
-        );
-         
-
-
 }
 ?>

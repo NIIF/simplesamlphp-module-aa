@@ -309,9 +309,4 @@ class sspmod_aa_AA_SAML2
 		SimpleSAML_Logger::info('[aa] Sending assertion.');
 		$this->binding->send($response);
 	}
-
-	public static function getSettings()
-	{
-		# code...
-	}
 }
