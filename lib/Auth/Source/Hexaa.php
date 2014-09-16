@@ -1,4 +1,20 @@
 <?php
+/**
+ * Static AA source.
+ *
+ * This class is the authentication source of th HEXAA backend
+ * 
+ * Example configuration in the config/authsources.php
+ * 
+ *       'default-aa' => array(
+ *           'aa:Hexaa',
+             'hexaa_api_url' =>       'https:/www.hexaa.example.com/app.php/api',
+             'hexaa_master_secret' => 'you_can_get_it_from_the_hexaa_administrator'
+ *       ),		
+ *
+ * @author 
+ * @package 
+ */
 class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
         private $hexaa_master_secret;
@@ -55,13 +71,13 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
 		// Check for error & use the data
 		if ($response === FALSE){
-		SimpleSAML_Logger::error('[aa] HEXAA API query failed: '.curl_error($ch));
-		$data = array();
+		    SimpleSAML_Logger::error('[aa] HEXAA API query failed: '.curl_error($ch));
+                    $data = array();
 		} else {
 		        $data = json_decode($response, true);
-		SimpleSAML_Logger::info('[aa] got reply from HEXAA API');
-		SimpleSAML_Logger::debug('[aa] HEXAA API query postData: '.var_export($postData, TRUE));
-		SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($data, TRUE));
+		        SimpleSAML_Logger::info('[aa] got reply from HEXAA API');
+                        SimpleSAML_Logger::debug('[aa] HEXAA API query postData: '.var_export($postData, TRUE));
+                        SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($data, TRUE));
 		}	
 		return $data;
 	}
