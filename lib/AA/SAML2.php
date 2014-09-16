@@ -310,11 +310,6 @@ class sspmod_aa_AA_SAML2
 		$this->binding->send($response);
 	}
 
-	public static function getMetadata()
-	{
-		# code...
-	}
-
 	public static function getSettings()
 	{
 		# code...
