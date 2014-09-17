@@ -23,7 +23,7 @@
  *            )
  *       ),		
  *
- * @author 
+ * @author Gyula Szabó <gyufi@niif.hu>
  * @package 
  */
 class sspmod_aa_Auth_Source_Static extends SimpleSAML_Auth_Source {
