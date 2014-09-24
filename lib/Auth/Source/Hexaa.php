@@ -18,6 +18,7 @@
 class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
     private $config;
+    private $as_config;
 
 	public function __construct($info, $config)
 	{
@@ -31,7 +32,7 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 				throw new Exception('Missing required attribute \'' . $param .
 				'\' for authentication source ' . $this->authId);
 			}
-			$this->config[$param] = $config[$param];
+			$this->as_config[$param] = $config[$param];
 	    }                     			
 	}
 
@@ -53,7 +54,7 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 		$time = new \DateTime();
         date_timezone_set($time, new \DateTimeZone('UTC'));
 		$stamp = $time->format('Y-m-d H:i');
-		$apiKey = hash('sha256', $this->hexaa_master_secret.$stamp);	
+		$apiKey = hash('sha256', $this->as_config['hexaa_master_secret'].$stamp);	
 		// Make the call
 		// The data to send to the API
 		$postData = array(
@@ -64,7 +65,7 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
 
 		// Setup cURL
-		$ch = curl_init($this->hexaa_api_url.'/attributes.json');
+		$ch = curl_init($this->as_config['hexaa_api_url'].'/attributes.json');
 		curl_setopt_array($ch, array(
 	        CURLOPT_POST => TRUE,
 	        CURLOPT_RETURNTRANSFER => TRUE,
