@@ -1,7 +1,7 @@
 <?php
 $config = array(
     /**
-     * Attribute request expiration in seconds
+     * Clock skew for attribute requests (in seconds)
      *
      */
      'timewindow' => 5*60,
@@ -10,5 +10,5 @@ $config = array(
      * AuthSource of the attribute source
      *
      */
-     'authsource' => 'default-aa',                           
+     'authsource' => 'default-aa',
 );

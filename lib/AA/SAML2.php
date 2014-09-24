@@ -1,7 +1,7 @@
 <?php
 
 /*
-Implementing Attribute Authority
+Implements SAML2 Attribute Authority
 */
 
 /**
@@ -48,7 +48,7 @@ class sspmod_aa_AA_SAML2
 		SimpleSAML_Logger::debug('[aa] query: '.var_export($query,true));
 
 		if (!($query instanceof SAML2_AttributeQuery)) {
-		    throw new SimpleSAML_Error_BadRequest('Invalid message received to AttributeQuery endpoint.');
+		    throw new SimpleSAML_Error_BadRequest('Invalid message received on AttributeQuery endpoint.');
 		}				
 		return $query;
 	}
@@ -87,21 +87,20 @@ class sspmod_aa_AA_SAML2
 		// Authenticate the requestor
 		$this->authenticate();
 
-		// Get the attributes
+		// Get all attributes from the auth sources
 		$attributes = $this->getAttributes();
 
-		// Filter attributes by SP
-		$filtered_attributes = $this->filterAttributesBySP($attributes);
-
 		// Filter attributes by AA filters
-		$filtered_attributes = $this->filterAttributesByAA($filtered_attributes);
+		$this->processFilters($attributes);
+
+		// Filter attributes by SP
+		$this->filterFromRequest($attributes);
 
 		// Build the whole response
-		$response = $this->buildResponse($filtered_attributes);
+		$response = $this->buildResponse($attributes);
 
 		// Send the response
 		$this->sendResponse($response);
-		
 	}
 
 	private function authenticate()
@@ -174,19 +173,11 @@ class sspmod_aa_AA_SAML2
 
 		if (!$nameId)
 		    throw new SimpleSAML_Error_BadRequest('[aa] Error getting NameID from AttributeQuery.');
-		$nameFormat = "N/A";
 		if (array_key_exists("Format",$nameId)) {
 		    $nameIdFormat = $nameId["Format"];
 		}
 
 		SimpleSAML_Logger::info('[aa] Received attribute query for ' . $nameId['Value'] . ' (nameIdFormat: ' . $nameIdFormat . ')');
-
-		/*
-		$resolverclass = 'sspmod_aa_AttributeResolver_'.$this->config->getValue('resolver');
-		 if (! class_exists($resolverclass)){
-		    throw new SimpleSAML_Error_Exception('[aa] There is no resolver named '.$this->config->getValue('resolver').' in the config/module_aa.php');
-		}
-		*/
 
 		/* Get the attributes from the AuthSource */
 		$spMetadataArray = $this->spMetadata->toArray();
@@ -205,14 +196,15 @@ class sspmod_aa_AA_SAML2
 
 		$attributes = $state['Attributes'];
 
-		 // TODO call authsource not resolver
-		//$ar = new $resolverclass($this->config);
-		//$attributes = array();
-		//$attributes = $ar->getAttributes($nameId['Value'],$this->spEntityId,$this->query->getAttributes());
 		return $attributes;
 	}
 
-	private function filterAttributesByAA($attributes)
+	// TODO: refactor the following two functions
+	//  -> operate on the argument
+	//  -> rename: 
+	//     filterAttributesByAA -> processFilters
+	//     filterAttributesBySP -> filterFromRequest
+	private function processFilters(&$attributes)
 	{
 		$spMetadataArray = $this->spMetadata->toArray();
 		$aaMetadataArray = $this->aaMetadata->toArray();
@@ -222,51 +214,43 @@ class sspmod_aa_AA_SAML2
 		    'Destination' => $spMetadataArray,
 		    'Source' => $aaMetadataArray,
 		);
+		// TODO: is it really necessary?
 		SimpleSAML_Logger::debug('[aa] Auth Filter Process filters: '.var_export($pc,1));
 
 		$pc->processStatePassive($authProcState); // backend, passive processing, no user interaction
 
+		// TODO: too much noise
 		SimpleSAML_Logger::debug('[aa] Auth Filter Process stop, state: '.var_export($authProcState,1));
 
 		$attributes = $authProcState['Attributes'];
-
-		return $attributes;
 	}
 
-	private function filterAttributesBySP($attributes)
+	private function filterFromRequest(&$attributes)
 	{
-		
-
-		/* Determine which attributes we will return. */
-		$returnAttributes = $this->query->getAttributes();
-		if (count($returnAttributes) === 0) {
-		    SimpleSAML_Logger::debug('[aa] No attributes requested - return all attributes: '.var_export($attributes,true));
-		    $returnAttributes = $attributes;
-
+		$requestedAttributes = $this->query->getAttributes();
+		if (count($requestedAttributes) === 0) {
+		    SimpleSAML_Logger::debug('[aa] No attributes requested - return all previously resolved attributes: '.var_export($attributes,true));
 		} elseif ($this->query->getAttributeNameFormat() !== $this->attributeNameFormat) {
-		    SimpleSAML_Logger::debug('[aa] Requested attributes with wrong NameFormat - no attributes returned. Expected: '.$this->attributeNameFormat.' Got: '. $this->query->getAttributeNameFormat());
-		    $returnAttributes = array();
+		    SimpleSAML_Logger::debug('[aa] NameFormat mismatch - no attributes returned. Expected: '.$this->attributeNameFormat.' Requested: '. $this->query->getAttributeNameFormat());
+		    $attributes = array();
 		} else {
-		    foreach ($returnAttributes as $name => $values) {
-		        SimpleSAML_Logger::debug('[aa] Check this attribute: '.$name);
-		        if (!array_key_exists($name, $attributes)) {
-		            /* We don't have this attribute. */
-		            SimpleSAML_Logger::debug('[aa] We dont have this attribute, unset: '.$name);
-		            unset($returnAttributes[$name]);
+		    foreach ($attributes as $name => $values) {
+		        if (!array_key_exists($name, $requestedAttributes)) {
+		            /* They didn't request this attribute. */
+		            SimpleSAML_Logger::debug('[aa] Remove attribute because it was not requested: '.$name);
+		            unset($attributes[$name]);
 		            continue;
 		        }
 
 		        if (count($values) === 0) {
 		            /* Return all values. */
-		            $returnAttributes[$name] = $attributes[$name];
 		            continue;
 		        }
 
 		        /* Filter which attribute values we should return. */
-		        $returnAttributes[$name] = array_intersect($values, $attributes[$name]);
+		        $attributes[$name] = array_intersect($values, $requestedAttributes[$name]);
 		    }
 		}
-		return $returnAttributes;
 	}
 
 
@@ -280,6 +264,9 @@ class sspmod_aa_AA_SAML2
 		$sc->SubjectConfirmationData->NotOnOrAfter = time() + $this->config->getInteger('timewindow');
 		$sc->SubjectConfirmationData->InResponseTo = $this->query->getId();
 
+		// TODO: 
+		//  -- signResponse default true
+		//  -- signAssertion default false
 		/* The Assertion */
 		$assertion = new SAML2_Assertion();
 		$assertion->setSubjectConfirmation(array($sc));
@@ -290,6 +277,7 @@ class sspmod_aa_AA_SAML2
 		$assertion->setValidAudiences(array($this->spEntityId));
 		$assertion->setAttributes($returnAttributes);
 		$assertion->setAttributeNameFormat($this->attributeNameFormat);
+		// TODO: if ($signAssertion) 
 		sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $assertion);
 
 		/* The Response */
@@ -298,6 +286,7 @@ class sspmod_aa_AA_SAML2
 		$response->setIssuer($this->aaEntityId);
 		$response->setInResponseTo($this->query->getId());
 		$response->setAssertions(array($assertion));
+		// TODO: if ($signResponse) 
 		sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $response);
 
 		return $response;			

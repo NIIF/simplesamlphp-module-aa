@@ -76,16 +76,17 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
 		// Send the request
 		$response = curl_exec($ch);
+		$http_response = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
-		// Check for error & use the data
-		if ($response === FALSE){
-		    SimpleSAML_Logger::error('[aa] HEXAA API query failed: '.curl_error($ch));
+		// Check for error; not even redirects are allowed here
+		if ($response === FALSE || !($http_response >= 200 && $http_response < 300)){
+		    SimpleSAML_Logger::error('[aa] HEXAA API query failed: HTTP response: $http_response, curl error: "'.curl_error($ch)) .'"';
             $data = array();
 		} else {
-	        $data = json_decode($response, true);
-	        SimpleSAML_Logger::info('[aa] got reply from HEXAA API');
-            SimpleSAML_Logger::debug('[aa] HEXAA API query postData: '.var_export($postData, TRUE));
-            SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($data, TRUE));
+		  $data = json_decode($response, true);
+		  SimpleSAML_Logger::info('[aa] got reply from HEXAA API');
+		  SimpleSAML_Logger::debug('[aa] HEXAA API query postData: '.var_export($postData, TRUE));
+		  SimpleSAML_Logger::debug('[aa] HEXAA API query result: '.var_export($data, TRUE));
 		}	
 		return $data;
 	}

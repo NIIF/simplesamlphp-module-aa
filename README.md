@@ -3,18 +3,14 @@
 Derived from (https://code.google.com/p/aa4ssp)
 
 
-The apache2 required config for simplesamlphp location:
+The following Apache configuration is required for the SimpleSAMLphp request path:
 
         SSLOptions +StdEnvVars +ExportCertData
         SSLVerifyClient optional_no_ca
         
-Introduction
+The configuration of the module is in <code>config-templates/module-aa.php</code>.
 
-The configuration of the modul is in config-templates/module-aa.php.
-
-You can change the time window of the request expiration and the class of the AttributeResolver.
-
-There is only one AttributeResolver handle and this is for the YAVOM software. If you want to implement your attribute source, don't hesitate.
+You can change the clock skew allowed for requests and the attribute source.
 
 You should copy and edit from metadata-templates/attributeauthority-hosted.php to metadata directory. After this the metadata is provided at the
 
