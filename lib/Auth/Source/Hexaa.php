@@ -77,7 +77,7 @@ class sspmod_aa_Auth_Source_Hexaa extends SimpleSAML_Auth_Source {
 
 		// Send the request
 		$response = curl_exec($ch);
-		$http_response = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+		$http_response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		// Check for error; not even redirects are allowed here
 		if ($response === FALSE || !($http_response >= 200 && $http_response < 300)){
