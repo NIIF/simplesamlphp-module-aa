@@ -11,4 +11,17 @@ $config = array(
      *
      */
      'authsource' => 'default-aa',
+     
+     /**
+      * Sign the response, deafult is true.
+      */
+      //'signResponse' => TRUE,
+
+    /**
+     * Sign the whole assertion, default is false. 
+     */    
+     //'signAssertion' => FALSE,
+
 );
+
+

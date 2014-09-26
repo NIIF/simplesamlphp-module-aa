@@ -18,10 +18,23 @@ class sspmod_aa_AA_SAML2
 	private $spMetadata;
 	private $config;
 	private $attributeNameFormat;
+	private $signAssertion;
+	private $signResponse;
 
 	function __construct($metadata)
 	{
 		$this->config = SimpleSAML_Configuration::getConfig('module_aa.php');
+		
+		$this->signAssertion = FALSE;
+		if ($this->config->hasValue('signAssertion')) {
+			$this->signAssertion = $this->config->getBoolean('signAssertion');
+		}
+
+		$this->signResponse = TRUE;
+		if ($this->config->hasValue('signResponse')) {
+			$this->signResponse = $this->config->getBoolean('signResponse');
+		}
+
 		$this->binding = $this->getBinding();
 		$this->query = $this->getQuery();
 		$this->attributeNameFormat = $this->getAttributeNameFormat();		
@@ -199,11 +212,6 @@ class sspmod_aa_AA_SAML2
 		return $attributes;
 	}
 
-	// TODO: refactor the following two functions
-	//  -> operate on the argument
-	//  -> rename: 
-	//     filterAttributesByAA -> processFilters
-	//     filterAttributesBySP -> filterFromRequest
 	private function processFilters(&$attributes)
 	{
 		$spMetadataArray = $this->spMetadata->toArray();
@@ -214,14 +222,7 @@ class sspmod_aa_AA_SAML2
 		    'Destination' => $spMetadataArray,
 		    'Source' => $aaMetadataArray,
 		);
-		// TODO: is it really necessary?
-		SimpleSAML_Logger::debug('[aa] Auth Filter Process filters: '.var_export($pc,1));
-
 		$pc->processStatePassive($authProcState); // backend, passive processing, no user interaction
-
-		// TODO: too much noise
-		SimpleSAML_Logger::debug('[aa] Auth Filter Process stop, state: '.var_export($authProcState,1));
-
 		$attributes = $authProcState['Attributes'];
 	}
 
@@ -264,10 +265,6 @@ class sspmod_aa_AA_SAML2
 		$sc->SubjectConfirmationData->NotOnOrAfter = time() + $this->config->getInteger('timewindow');
 		$sc->SubjectConfirmationData->InResponseTo = $this->query->getId();
 
-		// TODO: 
-		//  -- signResponse default true
-		//  -- signAssertion default false
-		/* The Assertion */
 		$assertion = new SAML2_Assertion();
 		$assertion->setSubjectConfirmation(array($sc));
 		$assertion->setIssuer($this->aaEntityId);
@@ -277,8 +274,9 @@ class sspmod_aa_AA_SAML2
 		$assertion->setValidAudiences(array($this->spEntityId));
 		$assertion->setAttributes($returnAttributes);
 		$assertion->setAttributeNameFormat($this->attributeNameFormat);
-		// TODO: if ($signAssertion) 
-		sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $assertion);
+		if ($this->signAssertion) {
+			sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $assertion);
+		}
 
 		/* The Response */
 		$response = new SAML2_Response();
@@ -286,8 +284,9 @@ class sspmod_aa_AA_SAML2
 		$response->setIssuer($this->aaEntityId);
 		$response->setInResponseTo($this->query->getId());
 		$response->setAssertions(array($assertion));
-		// TODO: if ($signResponse) 
-		sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $response);
+		if ($this->signResponse) {
+			sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $response);
+		}		
 
 		return $response;			
 	}
