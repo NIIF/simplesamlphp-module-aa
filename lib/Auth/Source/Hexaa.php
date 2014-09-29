@@ -1,6 +1,6 @@
 <?php
 /**
- * Static AA source.
+ * Hexaa AA source.
  *
  * This class is the authentication source of th HEXAA backend
  * 
