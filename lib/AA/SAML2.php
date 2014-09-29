@@ -261,16 +261,16 @@ class sspmod_aa_AA_SAML2
 		$sc = new SAML2_XML_saml_SubjectConfirmation();
 		$sc->Method = SAML2_Const::CM_BEARER;
 		$sc->SubjectConfirmationData = new SAML2_XML_saml_SubjectConfirmationData();
-		$sc->SubjectConfirmationData->NotBefore = time() - $this->config->getInteger('timewindow');
-		$sc->SubjectConfirmationData->NotOnOrAfter = time() + $this->config->getInteger('timewindow');
+		$sc->SubjectConfirmationData->NotBefore = time();
+		$sc->SubjectConfirmationData->NotOnOrAfter = time() + $this->config->getInteger('validFor');
 		$sc->SubjectConfirmationData->InResponseTo = $this->query->getId();
 
 		$assertion = new SAML2_Assertion();
 		$assertion->setSubjectConfirmation(array($sc));
 		$assertion->setIssuer($this->aaEntityId);
 		$assertion->setNameId($this->query->getNameId());
-		$assertion->setNotBefore(time() - $this->config->getInteger('timewindow'));
-		$assertion->setNotOnOrAfter(time() + $this->config->getInteger('timewindow'));
+		$assertion->setNotBefore(time());
+		$assertion->setNotOnOrAfter(time() + $this->config->getInteger('validFor'));
 		$assertion->setValidAudiences(array($this->spEntityId));
 		$assertion->setAttributes($returnAttributes);
 		$assertion->setAttributeNameFormat($this->attributeNameFormat);

@@ -4,7 +4,7 @@
  *
  */
 
-$metadata['https:/www.hexaa.example.com/hexaa'] = array(
+$metadata['https://www.hexaa.example.com/hexaa'] = array(
         /*
          * The hostname of the server (VHOST) that will use this SAML entity.
          *
@@ -18,6 +18,6 @@ $metadata['https:/www.hexaa.example.com/hexaa'] = array(
 
         'OrganizationName' => 'EXAMPLE',
         'OrganizationDisplayName' => 'EXAMPLE',
-        'OrganizationURL' => 'http://example.com',
+        'OrganizationURL' => 'https://example.com',
 
 );

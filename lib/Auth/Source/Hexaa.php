@@ -8,7 +8,7 @@
  * 
  *       'default-aa' => array(
  *           'aa:Hexaa',
- *            'hexaa_api_url' =>       'https:/www.hexaa.example.com/app.php/api',
+ *            'hexaa_api_url' =>       'https://www.hexaa.example.com/app.php/api',
  *            'hexaa_master_secret' => 'you_can_get_it_from_the_hexaa_administrator'
  *       ),		
  *
