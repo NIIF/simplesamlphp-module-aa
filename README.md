@@ -2,9 +2,7 @@
 
 * Author: Gyula Szabó <gyufi@niif.hu>, NIIF Institute, Hungary
 
-This module provide a back-end SAML Attribute Authority implementation.
-
-
+This module provides back-end SAML Attribute Authority functionality.
 
 ## Apache configuration
 The following Apache configuration is required for the SimpleSAMLphp request path:
@@ -13,21 +11,27 @@ The following Apache configuration is required for the SimpleSAMLphp request pat
         SSLVerifyClient optional_no_ca
        
 ## Module configuration 
-The module configuration example is in <code>config-templates/module-aa.php</code>. You have to configure the response validity time, the defined authsource and the signing.
+The module configuration example is in `config-templates/module-aa.php`. You can configure the response validity time, the defined authsource and the signing properties.
 
-## etc/authsource.php
-The authsource configuration is depend on the attribute resolver class. The authsource is has to be passive, without user interaction, and it receive the pricipal in the $state['aa:nameId'] variable.
+### Authentication Source
+Because the principal can not be authenticated, there must be an authsource that populates the query subject in an attribute, that can be further processed by Authentication Processing Filters. It is implemented by a dummy authsource called `aa:Bypass`. 
 
-## Authproc Filters
-In the etc/config.php you can define an array named "authproc.aa" - like authproc.sp or authproc.idp - and you shoud configure attribute filter classes, to manipulate the given attributes.
+You can configure the field that will hold the query subject in `config/authsources.php` as the following:
 
-## Metadata
-You should copy and edit from metadata-templates/attributeauthority-hosted.php to metadata directory. After this the metadata is provided at the
+       'default-aa' => array(
+                'aa:Bypass',
+                'uid' => 'subject_nameid',
+        ),
+
+
+### Authproc Filters
+In the `config/config.php` you can define an array named "authproc.aa", just like authproc.sp or authproc.idp. The NameID of the request will be in the attribute as defined above. For example, you can add attributes to the response with `attributecollector:AttributeCollector` or `ldap:AttributeAddFromLDAP`.
+
+### Metadata
+You should copy `metadata-templates/attributeauthority-hosted.php` to the `metadata` directory and customise it. The metadata is published at
 
     <simplesamlphp_instance>/module.php/aa/metadata.php?output=xhtml
 
-web URL in the usual formats.
+URL in the usual formats. The metadata contains the proper signing certificate.
 
-The metadata contains the signing certificate informations.
-
-This code derived from the old [aa4ssp code](https://code.google.com/p/aa4ssp).
+This code has derived from the old [aa4ssp code](https://code.google.com/p/aa4ssp).
