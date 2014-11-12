@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Static AA source.
+ * Bypass AA source.
  *
- * This class is an example authentication source which will always return a user with
- * a the subject nameId in the attributes array.
+ * This class is an authentication source which will always return a user with
+ * the subject nameId in the attributes array.
  * 
  * Example configuration in the config/authsources.php
  * 
  *       'default-aa' => array(
- *           'aa:Static',
+ *           'aa:Bypass',
  *           'uid' => 'subject_nameid'
  *       ),		
  *
@@ -47,14 +47,14 @@ class sspmod_aa_Auth_Source_Bypass extends SimpleSAML_Auth_Source {
 
 
 	/**
-	 * Log in using static attributes.
+	 * Log in and set the nameId attribute.
 	 *
 	 * @param array &$state  Information about the current authentication.
 	 */
 	public function authenticate(&$state) {
 		assert('is_array($state)');
 
-		$state['Attributes'][$uid][0] = $state["aa:nameId"];
+		$state['Attributes'][$this->uid] = array($state["aa:nameId"]);
 	}
 
 }
