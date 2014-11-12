@@ -1,6 +1,6 @@
 {
     "name": "niif/simplesamlphp-module-aa",
-    "description": "Attribute Authority for simplesamlPHP",
+    "description": "Attribute Authority for simpleSAMLphp",
     "type": "simplesamlphp-module",
     "require": {
         "simplesamlphp/composer-module-installer": "~1.0",
