@@ -5,7 +5,7 @@
 This module provides back-end SAML Attribute Authority functionality.
 
 ## Install module
-You can install the module via composer:
+You can install the module with composer, insert the next row into the composer.json:
 
     "require": {
         ...
