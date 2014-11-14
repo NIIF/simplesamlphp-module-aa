@@ -7,7 +7,10 @@ This module provides back-end SAML Attribute Authority functionality.
 ## Install module
 You can install the module via composer:
 
-    composer require niif/simplesamlphp-module-aa:1.* 
+    "require": {
+        ...
+        "niif/simplesamlphp-module-aa": "1.*",
+        ...}
 
 ## Apache configuration
 The following Apache configuration is required for the SimpleSAMLphp request path:
