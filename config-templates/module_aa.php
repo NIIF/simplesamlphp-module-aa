@@ -18,10 +18,8 @@ $config = array(
       //'signResponse' => TRUE,
 
     /**
-     * Sign the whole assertion, default is false. 
-     */    
+     * Sign the whole assertion, default is false.
+     */
      //'signAssertion' => FALSE,
 
 );
-
-
