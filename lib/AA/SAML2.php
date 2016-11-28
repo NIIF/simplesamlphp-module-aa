@@ -1,11 +1,7 @@
 <?php
 
-/*
-Implements SAML2 Attribute Authority
-*/
-
 /**
- *
+ * Implements SAML2 Attribute Authority
  */
 class sspmod_aa_AA_SAML2
 {
@@ -32,6 +28,11 @@ class sspmod_aa_AA_SAML2
         $this->signResponse = true;
         if ($this->config->hasValue('signResponse')) {
             $this->signResponse = $this->config->getBoolean('signResponse');
+        }
+
+        $this->sslClientCertContainer = 'SSL_CLIENT_CERT';
+        if ($this->config->hasValue('sslClientCertContainer')) {
+            $this->sslClientCertContainer = $this->config->getString('sslClientCertContainer');
         }
 
         $this->binding = $this->getBinding();
@@ -125,9 +126,13 @@ class sspmod_aa_AA_SAML2
         if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER)) {
             SimpleSAML_Logger::debug('[aa] Request was made using the following certificate: '.var_export($_SERVER['SSL_CLIENT_VERIFY'], 1));
         }
-        if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER) && $_SERVER['SSL_CLIENT_VERIFY'] && $_SERVER['SSL_CLIENT_VERIFY'] != 'NONE') {
+        if (array_key_exists('SSL_CLIENT_VERIFY', $_SERVER)
+            && $_SERVER['SSL_CLIENT_VERIFY']
+            && $_SERVER['SSL_CLIENT_VERIFY'] != 'NONE'
+            && $_SERVER[$this->sslClientCertContainer]
+            ) {
             /* compare certificate fingerprints */
-            $clientCertData = trim(preg_replace('/--.* CERTIFICATE-+-/', '', $_SERVER['SSL_CLIENT_CERT']));
+            $clientCertData = trim(preg_replace('/--.* CERTIFICATE-+-/', '', $_SERVER[$this->sslClientCertContainer]));
             $clientCertFingerprint = strtolower(sha1(base64_decode($clientCertData)));
             if (!$clientCertFingerprint) {
                 throw new SimpleSAML_Error_Exception('[aa] Can not calculate certificate fingerprint from the request.');

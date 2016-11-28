@@ -22,4 +22,11 @@ $config = array(
      */
      //'signAssertion' => FALSE,
 
+     /**
+     * Header variable that contain the ssl client certificate, default is SSL_CLIENT_CERT.
+     * Useful when the AA is behind load balancer.
+     */
+     //'sslClientCertContainer' => 'SSL_CLIENT_CERT',
+         
+
 );
