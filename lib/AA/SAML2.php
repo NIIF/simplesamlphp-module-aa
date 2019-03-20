@@ -44,12 +44,12 @@ class sspmod_aa_AA_SAML2
     {
         /* Receiving the attribute query */
         $binding = SAML2_Binding::getCurrentBinding();
+        SimpleSAML_Logger::debug('[aa] binding: '.var_export($binding, true));
 
         /* Supported binding is SOAP */
-        if (!($binding instanceof SAML2_SOAP)) {
+        if (!($binding instanceof SAML2_SOAP || $binding instanceof SAML2\SOAP)) {
             throw new SimpleSAML_Error_BadRequest('[aa] Unsupported binding. It must be SAML2_SOAP.');
         }
-        SimpleSAML_Logger::debug('[aa] binding: '.var_export($binding, true));
 
         return $binding;
     }
@@ -59,7 +59,7 @@ class sspmod_aa_AA_SAML2
         $query = $this->binding->receive();
         SimpleSAML_Logger::debug('[aa] query: '.var_export($query, true));
 
-        if (!($query instanceof SAML2_AttributeQuery)) {
+        if (!($query instanceof SAML2_AttributeQuery || $query instanceof SAML2\AttributeQuery)) {
             throw new SimpleSAML_Error_BadRequest('Invalid message received on AttributeQuery endpoint.');
         }
 
