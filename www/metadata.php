@@ -1,12 +1,12 @@
 <?php
 
 /* Load simpleSAMLphp, configuration and metadata */
-$config = SimpleSAML_Configuration::getInstance();
+$config = SimpleSAML\Configuration::getInstance();
 $metadata = SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler();
 
 /* Check if valid local session exists.. */
 if ($config->getBoolean('admin.protectmetadata', false)) {
-    SimpleSAML_Utilities::requireAdmin();
+    SimpleSAML\Utils\Auth::requireAdmin();
 }
 
 try {
@@ -16,7 +16,7 @@ try {
     $availableCerts = array();
 
     $keys = array();
-    $certInfo = SimpleSAML_Utilities::loadPublicKey($aameta, false, 'new_');
+    $certInfo = SimpleSAML\Utils\Crypto::loadPublicKey($aameta, false, 'new_');
     if ($certInfo !== null) {
         $availableCerts['new_aa.crt'] = $certInfo;
         $keys[] = array(
@@ -30,7 +30,7 @@ try {
         $hasNewCert = false;
     }
 
-    $certInfo = SimpleSAML_Utilities::loadPublicKey($aameta, true);
+    $certInfo = SimpleSAML\Utils\Crypto::loadPublicKey($aameta, true);
     $availableCerts['aa.crt'] = $certInfo;
     $keys[] = array(
         'type' => 'X509Certificate',
@@ -40,7 +40,7 @@ try {
     );
 
     if ($aameta->hasValue('https.certificate')) {
-        $httpsCert = SimpleSAML_Utilities::loadPublicKey($aameta, true, 'https.');
+        $httpsCert = SimpleSAML\Utils\Crypto::loadPublicKey($aameta, true, 'https.');
         assert('isset($httpsCert["certData"])');
         $availableCerts['https.crt'] = $httpsCert;
         $keys[] = array(
@@ -54,10 +54,10 @@ try {
     $metaArray = array(
         'metadata-set' => 'attributeauthority-hosted',
         'entityid' => $aaentityid,
-        'protocols' => array(SAML2_Const::NS_SAMLP),
+        'protocols' => array(SAML2\Constants::NS_SAMLP),
         'AttributeService' => array(0 => array(
-                            'Binding' => SAML2_Const::BINDING_SOAP,
-                            'Location' => SimpleSAML_Utilities::getBaseURL().'module.php/aa/attributeserver.php',
+                            'Binding' => SAML2\Constants::BINDING_SOAP,
+                            'Location' => SimpleSAML\Utils\HTTP::getBaseURL().'module.php/aa/attributeserver.php',
                                          ),
                                        ),
     );
@@ -69,8 +69,8 @@ try {
     }
 
     $metaArray['NameIDFormat'] = array(
-                SAML2_Const::NAMEID_PERSISTENT,
-                SAML2_Const::NAMEID_TRANSIENT,
+                SAML2\Constants::NAMEID_PERSISTENT,
+                SAML2\Constants::NAMEID_TRANSIENT,
                 );
 
     if ($aameta->hasValue('OrganizationName')) {
@@ -81,7 +81,7 @@ try {
         );
 
         if (!$aameta->hasValue('OrganizationURL')) {
-            throw new SimpleSAML_Error_Exception('If OrganizationName is set, OrganizationURL must also be set.');
+            throw new SimpleSAML\Error\Exception('If OrganizationName is set, OrganizationURL must also be set.');
         }
         $metaArray['OrganizationURL'] = $aameta->getLocalizedString('OrganizationURL');
     }
@@ -115,10 +115,10 @@ try {
     if (array_key_exists('output', $_GET) && $_GET['output'] == 'xhtml') {
         $defaultaa = null;
 
-        $t = new SimpleSAML_XHTML_Template($config, 'metadata.php', 'admin');
+        $t = new SimpleSAML\XHTML\Template($config, 'metadata.php', 'admin');
 
         $t->data['header'] = 'saml20-aa';
-        $t->data['metaurl'] = SimpleSAML_Utilities::selfURLNoQuery();
+        $t->data['metaurl'] = SimpleSAML\Utils\HTTP::getSelfURLNoQuery();
         $t->data['metadata'] = htmlspecialchars($metaxml);
         $t->data['metadataflat'] = htmlspecialchars($metaflat);
         $t->data['defaultaa'] = $defaultaa;
@@ -130,5 +130,5 @@ try {
         exit(0);
     }
 } catch (Exception $exception) {
-    throw new SimpleSAML_Error_Error('METADATA', $exception);
+    throw new SimpleSAML\Error\Error('METADATA', $exception);
 }

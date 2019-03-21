@@ -9,7 +9,7 @@
 
 require_once('_include.php');
 
-SimpleSAML_Logger::info('SAML2.0 - AA Server: Request at SAML 2.0 Attribute Authority endpoint');
+SimpleSAML\Logger::info('SAML2.0 - AA Server: Request at SAML 2.0 Attribute Authority endpoint');
 
 $metadata = SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler();
 
