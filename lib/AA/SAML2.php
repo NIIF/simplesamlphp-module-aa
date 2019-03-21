@@ -156,7 +156,7 @@ class sspmod_aa_AA_SAML2
         /* Authenticate the requestor by verifying the XML signature on the query */
         $certs_of_query = $this->query->getCertificates();
         if (count($certs_of_query) > 0) {
-            if (sspmod_saml_Message::checkSign($this->spMetadata, $this->query)) {
+            if (SimpleSAML\Module\saml\Message::checkSign($this->spMetadata, $this->query)) {
                 $client_is_authenticated = true;
                 SimpleSAML\Logger::debug('[aa] AttributeQuery signature is checked and valid.');
             } else {
@@ -279,7 +279,7 @@ class sspmod_aa_AA_SAML2
         $assertion->setAttributes($returnAttributes);
         $assertion->setAttributeNameFormat($this->attributeNameFormat);
         if ($this->signAssertion) {
-            sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $assertion);
+            SimpleSAML\Module\saml\Message::addSign($this->aaMetadata, $this->spMetadata, $assertion);
         }
 
         /* The Response */
@@ -289,7 +289,7 @@ class sspmod_aa_AA_SAML2
         $response->setInResponseTo($this->query->getId());
         $response->setAssertions(array($assertion));
         if ($this->signResponse) {
-            sspmod_saml_Message::addSign($this->aaMetadata, $this->spMetadata, $response);
+            SimpleSAML\Module\saml\Message::addSign($this->aaMetadata, $this->spMetadata, $response);
         }
 
         return $response;

@@ -2,7 +2,7 @@
 
 /* Load simpleSAMLphp, configuration and metadata */
 $config = SimpleSAML\Configuration::getInstance();
-$metadata = SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler();
+$metadata = SimpleSAML\Metadata\MetaDataStorageHandler::getMetadataHandler();
 
 /* Check if valid local session exists.. */
 if ($config->getBoolean('admin.protectmetadata', false)) {
@@ -92,7 +92,7 @@ try {
 
     $metaflat = '$metadata['.var_export($aaentityid, true).'] = '.var_export($metaArray, true).';';
 
-    $metaBuilder = new SimpleSAML_Metadata_SAMLBuilder($aaentityid);
+    $metaBuilder = new SimpleSAML\Metadata\SAMLBuilder($aaentityid);
     $metaBuilder->addAttributeAuthority($metaArray);
     $metaBuilder->addOrganizationInfo($metaArray);
     $technicalContactEmail = $config->getString('technicalcontact_email', null);
@@ -110,7 +110,7 @@ try {
     $metaxml = $metaBuilder->getEntityDescriptorText();
 
     /* Sign the metadata if enabled. */
-    $metaxml = SimpleSAML_Metadata_Signer::sign($metaxml, $aameta->toArray(), 'SAML 2 IdP');
+    $metaxml = SimpleSAML\Metadata\Signer::sign($metaxml, $aameta->toArray(), 'SAML 2 IdP');
 
     if (array_key_exists('output', $_GET) && $_GET['output'] == 'xhtml') {
         $defaultaa = null;

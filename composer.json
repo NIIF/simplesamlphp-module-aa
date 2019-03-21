@@ -6,6 +6,7 @@
         "simplesamlphp/composer-module-installer": "~1.0"
     },
     "require-dev": {
-        "simplesamlphp/saml2": "3.1.*"
+        "simplesamlphp/saml2": "3.3.*",
+        "simplesamlphp/simplesamlphp": "1.17.*"
     }
 }
