@@ -4,5 +4,8 @@
     "type": "simplesamlphp-module",
     "require": {
         "simplesamlphp/composer-module-installer": "~1.0"
+    },
+    "require-dev": {
+        "simplesamlphp/saml2": "3.1.*"
     }
 }
