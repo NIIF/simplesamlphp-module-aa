@@ -14,8 +14,10 @@
  *       ),
  *
  * @author Gyula Szabó <gyufi@niif.hu>
+ * @author Gyula Szabó <gyufi@sztaki.hu>
+ * @author Gyula Szabó <gyufi@szabocsalad.com>
  */
-class sspmod_aa_Auth_Source_Bypass extends SimpleSAML_Auth_Source
+class sspmod_aa_Auth_Source_Bypass extends SimpleSAML\Auth\Source
 {
     /**
      * Attribute name for the subject nameId.
@@ -27,8 +29,12 @@ class sspmod_aa_Auth_Source_Bypass extends SimpleSAML_Auth_Source
     /**
      * Constructor for this authentication source.
      *
-     * @param array $info   Information about this authentication source.
-     * @param array $config Configuration.
+     * sspmod_aa_Auth_Source_Bypass constructor.
+     *
+     * @param $info
+     * @param $config
+     *
+     * @throws \SimpleSAML\Error\Exception
      */
     public function __construct($info, $config)
     {
@@ -39,10 +45,10 @@ class sspmod_aa_Auth_Source_Bypass extends SimpleSAML_Auth_Source
         parent::__construct($info, $config);
 
         if (!array_key_exists('uid', $config) || !is_string($config['uid'])) {
-            throw new SimpleSAML_Error_Exception("AA configuration error, 'uid' not found or not a string.");
+            throw new SimpleSAML\Error\Exception("AA configuration error, 'uid' not found or not a string.");
         }
 
-        SimpleSAML_Logger::debug('[aa] auth source Bypass: config uid: '.$config['uid']);
+        SimpleSAML\Logger::debug('[aa] auth source Bypass: config uid: '.$config['uid']);
         $this->uid = $config['uid'];
     }
 
