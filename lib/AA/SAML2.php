@@ -6,6 +6,9 @@ Implements SAML2 Attribute Authority
 
 /**
  *
+ * @author Gyula Szabó <gyufi@niif.hu>
+ * @author Gyula Szabó <gyufi@sztaki.hu>
+ * @author Gyula Szabó <gyufi@szabocsalad.com>
  */
 class sspmod_aa_AA_SAML2
 {
@@ -20,7 +23,7 @@ class sspmod_aa_AA_SAML2
     private $signAssertion;
     private $signResponse;
 
-    public function __construct($metadata)
+    public function __construct(\SimpleSAML\Metadata\MetaDataStorageHandler $metadata)
     {
         $this->config = SimpleSAML\Configuration::getConfig('module_aa.php');
 
@@ -66,7 +69,7 @@ class sspmod_aa_AA_SAML2
         return $query;
     }
 
-    private function getEntities($metadata)
+    private function getEntities(\SimpleSAML\Metadata\MetaDataStorageHandler $metadata)
     {
         /* Getting the related entities metadata objects */
         $aaEntityId = $metadata->getMetaDataCurrentEntityID('attributeauthority-hosted');
@@ -189,7 +192,7 @@ class sspmod_aa_AA_SAML2
         if ($nameId->getFormat()) {
             $nameIdFormat = $nameId->getFormat();
         }
-        $nameIdValue = $nameId->getValue();
+        $nameIdValue = [$nameId->getValue()];
 
         SimpleSAML\Logger::info('[aa] Received attribute query for '.$nameIdValue.' (nameIdFormat: '.$nameIdFormat.')');
 
