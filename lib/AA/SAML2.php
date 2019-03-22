@@ -6,9 +6,6 @@ Implements SAML2 Attribute Authority
 
 /**
  *
- * @author Gyula Szabó <gyufi@niif.hu>
- * @author Gyula Szabó <gyufi@sztaki.hu>
- * @author Gyula Szabó <gyufi@szabocsalad.com>
  */
 class sspmod_aa_AA_SAML2
 {
@@ -22,8 +19,9 @@ class sspmod_aa_AA_SAML2
     private $attributeNameFormat;
     private $signAssertion;
     private $signResponse;
+    private $endpointUrl;
 
-    public function __construct(\SimpleSAML\Metadata\MetaDataStorageHandler $metadata)
+    public function __construct($metadata)
     {
         $this->config = SimpleSAML\Configuration::getConfig('module_aa.php');
 
@@ -69,7 +67,7 @@ class sspmod_aa_AA_SAML2
         return $query;
     }
 
-    private function getEntities(\SimpleSAML\Metadata\MetaDataStorageHandler $metadata)
+    private function getEntities($metadata)
     {
         /* Getting the related entities metadata objects */
         $aaEntityId = $metadata->getMetaDataCurrentEntityID('attributeauthority-hosted');
@@ -79,12 +77,23 @@ class sspmod_aa_AA_SAML2
         if ($spEntityId === null) {
             throw new SimpleSAML\Error\BadRequest('Missing <saml:Issuer> in <samlp:AttributeQuery>.');
         }
+        $dstMetadata = $metadata->getMetadata($spEntityId, 'saml20-sp-remote');
+        foreach ($dstMetadata['AssertionConsumerService'] as $acs) {
+            if ($acs['Binding'] == SAML2\Constants::BINDING_PAOS) {
+                $endpointUrl = $acs['Location'];
+            }
+        };
+        if (!$endpointUrl) {
+            throw new SimpleSAML\Error\BadRequest('Missing PAOS endpointUrl in destination metadata.');
+        }
+
         $spMetadata = $metadata->getMetaDataConfig($spEntityId, 'saml20-sp-remote');
 
         $this->aaEntityId = $aaEntityId;
         $this->aaMetadata = $aaMetadata;
         $this->spEntityId = $spEntityId;
         $this->spMetadata = $spMetadata;
+        $this->endpointUrl = $endpointUrl;
     }
 
     private function getAttributeNameFormat()
@@ -291,6 +300,7 @@ class sspmod_aa_AA_SAML2
         $response->setIssuer($this->aaEntityId);
         $response->setInResponseTo($this->query->getId());
         $response->setAssertions(array($assertion));
+        $response->setDestination($this->endpointUrl);
         if ($this->signResponse) {
             SimpleSAML\Module\saml\Message::addSign($this->aaMetadata, $this->spMetadata, $response);
         }
