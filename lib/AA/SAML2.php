@@ -201,7 +201,7 @@ class sspmod_aa_AA_SAML2
         if ($nameId->getFormat()) {
             $nameIdFormat = $nameId->getFormat();
         }
-        $nameIdValue = [$nameId->getValue()];
+        $nameIdValue = $nameId->getValue();
 
         SimpleSAML\Logger::info('[aa] Received attribute query for '.$nameIdValue.' (nameIdFormat: '.$nameIdFormat.')');
 
