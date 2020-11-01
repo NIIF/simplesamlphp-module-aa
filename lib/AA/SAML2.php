@@ -242,6 +242,7 @@ class sspmod_aa_AA_SAML2
     private function filterFromRequest(&$attributes)
     {
         $requestedAttributes = $this->query->getAttributes();
+        SimpleSAML\Logger::debug('[aa] $requestedAttributes: '.var_export($requestedAttributes, 1));
         if (count($requestedAttributes) === 0) {
             SimpleSAML\Logger::debug(
                 '[aa] No attributes requested - return all previously resolved attributes: '.var_export($attributes, true)
@@ -250,9 +251,10 @@ class sspmod_aa_AA_SAML2
             SimpleSAML\Logger::debug(
                 '[aa] NameFormat mismatch - no attributes returned. Expected: '.$this->attributeNameFormat.' Requested: '.$this->query->getAttributeNameFormat()
             );
-            $attributes = array();
+            $attributes = [];
         } else {
             foreach ($attributes as $name => $values) {
+                SimpleSAML\Logger::debug('[aa] $name, $values: '.var_export([$name, $values], 1));
                 if (!array_key_exists($name, $requestedAttributes)) {
                     /* They didn't request this attribute. */
                     SimpleSAML\Logger::debug('[aa] Remove attribute because it was not requested: '.$name);
@@ -265,10 +267,15 @@ class sspmod_aa_AA_SAML2
                     continue;
                 }
 
-                /* Filter which attribute values we should return. */
-                $attributes[$name] = array_intersect($values, $requestedAttributes[$name]);
+		if (empty($requestedAttributes[$name])) { // if requestedAttribute has no explicit value set return all value
+                  $attributes[$name] = $values;
+		} else {
+                  /* Filter which attribute values we should return. */
+                  $attributes[$name] = array_intersect($values, $requestedAttributes[$name]);
+		}
             }
         }
+        SimpleSAML\Logger::debug('[aa] Attributes after filter: '.var_export($attributes, 1));
     }
 
     private function buildResponse($returnAttributes)
