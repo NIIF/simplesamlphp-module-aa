@@ -1,0 +1,89 @@
+{% set pagetitle = 'AttributeAuthority tester'|trans %}
+{% extends 'base.twig' %}
+
+{% block content %}
+    <h2>{{ pagetitle }}</h2>
+
+    <form class="pure-form pure-form-aligned" action="test.php" method="POST">
+        <fieldset>
+            <div class="pure-control-group">
+                <label for="aligned-name">sp</label>
+                <select name="sp" id="sp">
+                    {% for entityid, entitydata in sps %}
+                        <option value="{{ entityid }}">{{ entityid }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <legend>Key attribute</legend>
+            <div class="pure-control-group">
+                <label for="aligned-name">name</label>
+                <input type="text" name="keyattributename" value="urn:oid:1.3.6.1.4.1.5923.1.1.1.6"/>
+                <label for="aligned-name">value</label>
+                <input type="text" name="keyattributevalue"/>
+            </div>
+            <div class="pure-controls">
+                <button type="submit" class="pure-button pure-button-primary">Test</button>
+            </div>
+        </fieldset>
+    </form>
+
+    {% set items = attributes %}
+    {% embed '_table.twig' -%}
+        {% block namecol -%}
+            {% set translated = name|trans %}
+            <td class="attrname">{% if translated != name %} {{ translated }} <br>{% endif %} <samp>{{ name }}</samp>
+            </td>
+        {% endblock %}
+
+        {% block value -%}
+            {{ value }}
+        {% endblock %}
+    {%- endembed %}
+
+    <h4>configauthproc</h4>
+    <table id="authproc_table" class="attributes pure-table pure-table-striped pure-table-attributes"
+           summary="authproc overview">
+
+        {% for name, value in configauthproc %}
+            <tr class="{{ cycle(['odd', 'even'], loop.index0) }}">
+                {% block namecol -%}
+                    <td class="attrname">{{ name }}</td>
+                {%- endblock %}
+                <td class="attrvalue">
+                    {% block value %}
+                        {{ value.class }}
+                    {% endblock %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table><br>
+
+    {% set items = processedattributes %}
+    {% embed '_table.twig' -%}
+        {% block namecol -%}
+            {% set translated = name|trans %}
+            <td class="attrname">{% if translated != name %} {{ translated }} <br>{% endif %} <samp>{{ name }}</samp>
+            </td>
+        {% endblock %}
+
+        {% block value -%}
+            {{ value }}
+        {% endblock %}
+    {%- endembed %}
+
+
+    {% if debug %}
+        <h4>debug</h4>
+        <code>
+            {{ debug }}
+        </code>
+    {% endif %}
+
+    {% if exception %}
+        <h4>exception</h4>
+        <pre>
+    {{ exception }}
+  </pre>
+    {% endif %}
+
+{% endblock %}
